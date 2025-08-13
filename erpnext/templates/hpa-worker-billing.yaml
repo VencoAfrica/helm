@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "erpnext.fullname" . }}-worker-s
+  name: {{ include "erpnext.fullname" . }}-worker-b
   labels:
     {{- include "erpnext.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "erpnext.fullname" . }}-worker-s
+    name: {{ include "erpnext.fullname" . }}-worker-b
   minReplicas: {{ .Values.worker.billing.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.worker.billing.autoscaling.maxReplicas }}
   metrics:
