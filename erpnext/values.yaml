@@ -147,6 +147,28 @@ worker:
     initContainers: []
     sidecars: []
 
+  billing:
+    replicaCount: 1
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPU: 75
+      targetMemory: 75
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    livenessProbe:
+      override: false
+      probe: {}
+    readinessProbe:
+      override: false
+      probe: {}
+    envVars: []
+    initContainers: []
+    sidecars: []
+
   scheduler:
     replicaCount: 1
     resources: {}
