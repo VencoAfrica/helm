@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "erpnext.fullname" . }}-worker-s
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.worker.billing.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-s
+      app.kubernetes.io/instance: {{ .Release.Name }}-worker-s
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-s
+        app.kubernetes.io/instance: {{ .Release.Name }}-worker-s
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ template "erpnext.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+    {{- if .Values.worker.billing.initContainers }}
+      initContainers:
+        {{- toYaml .Values.worker.billing.initContainers | nindent 8 }}
+    {{- end }}
+      containers:
+        - name: billing
+          {{- if .Values.worker.billing.envVars }}
+          env:
+            {{- toYaml .Values.worker.billing.envVars | nindent 12 }}
+          {{- end }}
+          args:
+          - bench
+          - worker
+          - --queue
+          - billing
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            {{- if .Values.worker.billing.livenessProbe.override }}
+            {{- toYaml .Values.worker.billing.livenessProbe.probe | nindent 12 }}
+            {{- else }}
+            {{ tpl .Values.worker.healthProbe . | nindent 12 }}
+            {{- end }}
+          readinessProbe:
+            {{- if .Values.worker.billing.readinessProbe.override }}
+            {{- toYaml .Values.worker.billing.readinessProbe.probe | nindent 12 }}
+            {{- else }}
+            {{ tpl .Values.worker.healthProbe . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.worker.billing.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+          - name: sites-dir
+            mountPath: /home/frappe/frappe-bench/sites
+          - name: logs
+            mountPath: /home/frappe/frappe-bench/logs
+      {{- if .Values.worker.billing.sidecars }}
+        {{- toYaml .Values.worker.billing.sidecars | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: sites-dir
+          {{- if .Values.persistence.worker.enabled }}
+          persistentVolumeClaim:
+            {{- if .Values.persistence.worker.existingClaim }}
+            claimName: {{ .Values.persistence.worker.existingClaim }}
+            {{- else }}
+            claimName: {{ template "erpnext.fullname" . }}
+            {{- end }}
+            readOnly: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: logs
+          {{- if .Values.persistence.logs.enabled }}
+          persistentVolumeClaim:
+            {{- if .Values.persistence.logs.existingClaim }}
+            claimName: {{ .Values.persistence.logs.existingClaim }}
+            {{- else }}
+            claimName: {{ template "erpnext.fullname" . }}-logs
+            {{- end }}
+            readOnly: false
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.worker.billing.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.worker.billing.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.worker.billing.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
