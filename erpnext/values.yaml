@@ -220,7 +220,7 @@ worker:
         {{- else if .Values.postgresql.enabled }}
         - wait-for-it {{ .Release.Name }}-postgresql:{{ .Values.postgresql.primary.service.ports.postgresql }} -t 1;
         {{- end }}
-    initialDelaySeconds: 15
+    initialDelaySeconds: 30
     periodSeconds: 5
 
 socketio:
