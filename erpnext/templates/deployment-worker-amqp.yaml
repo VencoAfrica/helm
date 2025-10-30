@@ -1,21 +1,21 @@
-{{- if .Values.worker.billing.enabled }}
+{{- if .Values.worker.amqp.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "erpnext.fullname" . }}-worker-b
+  name: {{ include "erpnext.fullname" . }}-worker-amqp
   labels:
     {{- include "erpnext.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.worker.billing.replicaCount }}
+  replicas: {{ .Values.worker.amqp.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-b
-      app.kubernetes.io/instance: {{ .Release.Name }}-worker-b
+      app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-amqp
+      app.kubernetes.io/instance: {{ .Release.Name }}-worker-amqp
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-b
-        app.kubernetes.io/instance: {{ .Release.Name }}-worker-b
+        app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-amqp
+        app.kubernetes.io/instance: {{ .Release.Name }}-worker-amqp
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -24,37 +24,35 @@ spec:
       serviceAccountName: {{ template "erpnext.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-    {{- if .Values.worker.billing.initContainers }}
+    {{- if .Values.worker.amqp.initContainers }}
       initContainers:
-        {{- toYaml .Values.worker.billing.initContainers | nindent 8 }}
+        {{- toYaml .Values.worker.amqp.initContainers | nindent 8 }}
     {{- end }}
       containers:
-        - name: billing
-          {{- if .Values.worker.billing.envVars }}
+        - name: amqp
+          {{- if .Values.worker.amqp.envVars }}
           env:
-            {{- toYaml .Values.worker.billing.envVars | nindent 12 }}
+            {{- toYaml .Values.worker.amqp.envVars | nindent 12 }}
           {{- end }}
           args:
           - bench
-          - worker
-          - --queue
-          - billing
+          - start-amqp-consumer
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           livenessProbe:
-            {{- if .Values.worker.billing.livenessProbe.override }}
-            {{- toYaml .Values.worker.billing.livenessProbe.probe | nindent 12 }}
+            {{- if .Values.worker.amqp.livenessProbe.override }}
+            {{- toYaml .Values.worker.amqp.livenessProbe.probe | nindent 12 }}
             {{- else }}
             {{ tpl .Values.worker.healthProbe . | nindent 12 }}
             {{- end }}
           readinessProbe:
-            {{- if .Values.worker.billing.readinessProbe.override }}
-            {{- toYaml .Values.worker.billing.readinessProbe.probe | nindent 12 }}
+            {{- if .Values.worker.amqp.readinessProbe.override }}
+            {{- toYaml .Values.worker.amqp.readinessProbe.probe | nindent 12 }}
             {{- else }}
             {{ tpl .Values.worker.healthProbe . | nindent 12 }}
             {{- end }}
           resources:
-            {{- toYaml .Values.worker.billing.resources | nindent 12 }}
+            {{- toYaml .Values.worker.amqp.resources | nindent 12 }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
@@ -62,8 +60,8 @@ spec:
             mountPath: /home/frappe/frappe-bench/sites
           - name: logs
             mountPath: /home/frappe/frappe-bench/logs
-      {{- if .Values.worker.billing.sidecars }}
-        {{- toYaml .Values.worker.billing.sidecars | nindent 8 }}
+      {{- if .Values.worker.amqp.sidecars }}
+        {{- toYaml .Values.worker.amqp.sidecars | nindent 8 }}
       {{- end }}
       volumes:
         - name: sites-dir
@@ -90,15 +88,15 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
-      {{- with .Values.worker.billing.nodeSelector }}
+      {{- with .Values.worker.amqp.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- with .Values.worker.billing.affinity }}
+    {{- with .Values.worker.amqp.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.worker.billing.tolerations }}
+    {{- with .Values.worker.amqp.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
