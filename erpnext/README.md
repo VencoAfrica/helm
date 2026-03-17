@@ -179,7 +179,7 @@ Kubernetes Helm Chart for ERPNext and Frappe Framework Apps.
 | nginx.readinessProbe.initialDelaySeconds | int | `5` |  |
 | nginx.readinessProbe.periodSeconds | int | `10` |  |
 | nginx.readinessProbe.tcpSocket.port | int | `8080` |  |
-| nginx.replicaCount | int | `1` |  |
+| nginx.replicaCount | int | `2` |  |
 | nginx.resources | object | `{}` |  |
 | nginx.service.port | int | `8080` |  |
 | nginx.service.type | string | `"ClusterIP"` |  |
