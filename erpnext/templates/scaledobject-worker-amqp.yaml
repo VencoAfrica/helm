@@ -1,0 +1,28 @@
+{{- if and .Values.worker.amqp.enabled .Values.worker.amqp.scaledObject.enabled }}
+{{- if .Values.worker.amqp.autoscaling.enabled }}
+{{- fail "worker.amqp: cannot enable both autoscaling and scaledObject. Set worker.amqp.autoscaling.enabled=false when worker.amqp.scaledObject.enabled=true." }}
+{{- end }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "erpnext.fullname" . }}-worker-amqp
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "erpnext.fullname" . }}-worker-amqp
+  minReplicaCount: {{ .Values.worker.amqp.scaledObject.minReplicaCount }}
+  maxReplicaCount: {{ .Values.worker.amqp.scaledObject.maxReplicaCount }}
+  pollingInterval: {{ .Values.worker.amqp.scaledObject.pollingInterval | default 15 }}
+  cooldownPeriod: {{ .Values.worker.amqp.scaledObject.cooldownPeriod | default 300 }}
+  {{- with .Values.worker.amqp.scaledObject.advanced }}
+  advanced:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.worker.amqp.scaledObject.fallback }}
+  fallback:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  triggers:
+    {{- toYaml .Values.worker.amqp.scaledObject.triggers | nindent 4 }}
+{{- end }}

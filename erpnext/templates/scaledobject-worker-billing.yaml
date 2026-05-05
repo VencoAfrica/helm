@@ -1,0 +1,28 @@
+{{- if and .Values.worker.billing.enabled .Values.worker.billing.scaledObject.enabled }}
+{{- if .Values.worker.billing.autoscaling.enabled }}
+{{- fail "worker.billing: cannot enable both autoscaling and scaledObject. Set worker.billing.autoscaling.enabled=false when worker.billing.scaledObject.enabled=true." }}
+{{- end }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "erpnext.fullname" . }}-worker-b
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    name: {{ include "erpnext.fullname" . }}-worker-b
+  minReplicaCount: {{ .Values.worker.billing.scaledObject.minReplicaCount }}
+  maxReplicaCount: {{ .Values.worker.billing.scaledObject.maxReplicaCount }}
+  pollingInterval: {{ .Values.worker.billing.scaledObject.pollingInterval | default 15 }}
+  cooldownPeriod: {{ .Values.worker.billing.scaledObject.cooldownPeriod | default 300 }}
+  {{- with .Values.worker.billing.scaledObject.advanced }}
+  advanced:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.worker.billing.scaledObject.fallback }}
+  fallback:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  triggers:
+    {{- toYaml .Values.worker.billing.scaledObject.triggers | nindent 4 }}
+{{- end }}

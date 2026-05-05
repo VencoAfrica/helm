@@ -59,6 +59,18 @@ worker:
       maxReplicas: 3
       targetCPU: 75
       targetMemory: 75
+    # KEDA ScaledObject config. Mutually exclusive with autoscaling above —
+    # set autoscaling.enabled=false when scaledObject.enabled=true.
+    # Requires KEDA installed in the cluster (keda.sh/v1alpha1 CRDs).
+    scaledObject:
+      enabled: false
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 15
+      cooldownPeriod: 300
+      advanced: {}
+      fallback: {}
+      triggers: []
     livenessProbe:
       tcpSocket:
         port: 8000
@@ -89,6 +101,15 @@ worker:
       maxReplicas: 3
       targetCPU: 75
       targetMemory: 75
+    scaledObject:
+      enabled: false
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 15
+      cooldownPeriod: 300
+      advanced: {}
+      fallback: {}
+      triggers: []
     resources: {}
     nodeSelector: {}
     tolerations: []
@@ -111,6 +132,15 @@ worker:
       maxReplicas: 3
       targetCPU: 75
       targetMemory: 75
+    scaledObject:
+      enabled: false
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 15
+      cooldownPeriod: 300
+      advanced: {}
+      fallback: {}
+      triggers: []
     resources: {}
     nodeSelector: {}
     tolerations: []
@@ -133,6 +163,15 @@ worker:
       maxReplicas: 3
       targetCPU: 75
       targetMemory: 75
+    scaledObject:
+      enabled: false
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 15
+      cooldownPeriod: 300
+      advanced: {}
+      fallback: {}
+      triggers: []
     resources: {}
     nodeSelector: {}
     tolerations: []
@@ -156,6 +195,15 @@ worker:
       maxReplicas: 3
       targetCPU: 75
       targetMemory: 75
+    scaledObject:
+      enabled: false
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 15
+      cooldownPeriod: 300
+      advanced: {}
+      fallback: {}
+      triggers: []
     resources: {}
     nodeSelector: {}
     tolerations: []
@@ -179,6 +227,15 @@ worker:
       maxReplicas: 3
       targetCPU: 75
       targetMemory: 75
+    scaledObject:
+      enabled: false
+      minReplicaCount: 1
+      maxReplicaCount: 3
+      pollingInterval: 15
+      cooldownPeriod: 300
+      advanced: {}
+      fallback: {}
+      triggers: []
     resources: {}
     nodeSelector: {}
     tolerations: []
