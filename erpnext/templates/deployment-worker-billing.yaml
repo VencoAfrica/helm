@@ -6,7 +6,9 @@ metadata:
   labels:
     {{- include "erpnext.labels" . | nindent 4 }}
 spec:
+  {{- if and (not .Values.worker.billing.autoscaling.enabled) (not .Values.worker.billing.scaledObject.enabled) }}
   replicas: {{ .Values.worker.billing.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-b

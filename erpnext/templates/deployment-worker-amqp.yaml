@@ -6,7 +6,9 @@ metadata:
   labels:
     {{- include "erpnext.labels" . | nindent 4 }}
 spec:
+  {{- if and (not .Values.worker.amqp.autoscaling.enabled) (not .Values.worker.amqp.scaledObject.enabled) }}
   replicas: {{ .Values.worker.amqp.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "erpnext.name" . }}-worker-amqp
