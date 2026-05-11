@@ -2,6 +2,9 @@
 {{- if .Values.worker.long.autoscaling.enabled }}
 {{- fail "worker.long: cannot enable both autoscaling and scaledObject. Set worker.long.autoscaling.enabled=false when worker.long.scaledObject.enabled=true." }}
 {{- end }}
+{{- if not .Values.worker.long.scaledObject.triggers }}
+{{- fail "worker.long: scaledObject.triggers cannot be empty when scaledObject.enabled=true." }}
+{{- end }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
@@ -10,9 +13,11 @@ metadata:
     {{- include "erpnext.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
     name: {{ include "erpnext.fullname" . }}-worker-l
-  minReplicaCount: {{ .Values.worker.long.scaledObject.minReplicaCount }}
-  maxReplicaCount: {{ .Values.worker.long.scaledObject.maxReplicaCount }}
+  minReplicaCount: {{ .Values.worker.long.scaledObject.minReplicaCount | default 1 }}
+  maxReplicaCount: {{ required "worker.long.scaledObject.maxReplicaCount is required" .Values.worker.long.scaledObject.maxReplicaCount }}
   pollingInterval: {{ .Values.worker.long.scaledObject.pollingInterval | default 15 }}
   cooldownPeriod: {{ .Values.worker.long.scaledObject.cooldownPeriod | default 300 }}
   {{- with .Values.worker.long.scaledObject.advanced }}
