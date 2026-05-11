@@ -1,0 +1,33 @@
+{{- if .Values.worker.gunicorn.scaledObject.enabled }}
+{{- if .Values.worker.gunicorn.autoscaling.enabled }}
+{{- fail "worker.gunicorn: cannot enable both autoscaling and scaledObject. Set worker.gunicorn.autoscaling.enabled=false when worker.gunicorn.scaledObject.enabled=true." }}
+{{- end }}
+{{- if not .Values.worker.gunicorn.scaledObject.triggers }}
+{{- fail "worker.gunicorn: scaledObject.triggers cannot be empty when scaledObject.enabled=true." }}
+{{- end }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ include "erpnext.fullname" . }}-gunicorn
+  labels:
+    {{- include "erpnext.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "erpnext.fullname" . }}-gunicorn
+  minReplicaCount: {{ .Values.worker.gunicorn.scaledObject.minReplicaCount | default 1 }}
+  maxReplicaCount: {{ required "worker.gunicorn.scaledObject.maxReplicaCount is required" .Values.worker.gunicorn.scaledObject.maxReplicaCount }}
+  pollingInterval: {{ .Values.worker.gunicorn.scaledObject.pollingInterval | default 15 }}
+  cooldownPeriod: {{ .Values.worker.gunicorn.scaledObject.cooldownPeriod | default 300 }}
+  {{- with .Values.worker.gunicorn.scaledObject.advanced }}
+  advanced:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.worker.gunicorn.scaledObject.fallback }}
+  fallback:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  triggers:
+    {{- toYaml .Values.worker.gunicorn.scaledObject.triggers | nindent 4 }}
+{{- end }}
